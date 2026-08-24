@@ -44,7 +44,7 @@ jobs:
           docker build -t student-management-api:ci .
 
       - name: Run Trivy Security Scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.33.1
         continue-on-error: true
         with:
           image-ref: student-management-api:ci
