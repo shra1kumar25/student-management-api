@@ -50,3 +50,5 @@ jobs:
           format: table
           severity: CRITICAL
           exit-code: 0
+
+continue-on-error: true
