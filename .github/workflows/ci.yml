@@ -1,7 +1,9 @@
+cd ~/student-management-api
+
 cat > .github/workflows/ci.yml <<'EOF'
 name: Student API CI
 
-on:
+'on':
   push:
     branches:
       - master
@@ -18,7 +20,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: '3.14'
 
       - name: Install Dependencies
         run: |
@@ -27,12 +29,10 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run Tests
-        run: |
-          pytest
+        run: pytest
 
       - name: Generate Coverage
-        run: |
-          pytest --cov=app --cov-report=xml
+        run: pytest --cov=app --cov-report=xml
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
@@ -47,13 +47,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker Image
-        run: |
-          docker build \
-            -t ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest \
-            .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest .
 
       - name: Push Docker Image
-        run: |
-          docker push \
-            ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest
 EOF
