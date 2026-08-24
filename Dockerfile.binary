@@ -1,0 +1,58 @@
+# ==========================================
+# Stage 1: Build executable binary
+# ==========================================
+FROM python:3.11-slim-bookworm AS builder
+
+WORKDIR /build
+
+# PyInstaller requires objdump
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends binutils && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir \
+    -r requirements.txt \
+    pyinstaller
+
+# Copy application source only into builder
+COPY app ./app
+COPY run.py .
+
+# Create standalone executable
+RUN pyinstaller \
+    --onefile \
+    --name student-api \
+    --paths /build \
+    --hidden-import app \
+    --hidden-import app.main \
+    --hidden-import app.routes \
+    --hidden-import app.models \
+    --hidden-import app.schemas \
+    --hidden-import app.database \
+    --hidden-import app.auth \
+    run.py
+
+
+# ==========================================
+# Stage 2: Distroless runtime
+# ==========================================
+FROM gcr.io/distroless/base-debian12
+
+WORKDIR /app
+
+# Copy executable
+COPY --from=builder /build/dist/student-api /app/student-api
+
+# Copy zlib runtime library and its real file
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libz.so.1.2.13 \
+    /usr/lib/x86_64-linux-gnu/libz.so.1.2.13
+
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libz.so.1 \
+    /usr/lib/x86_64-linux-gnu/libz.so.1
+
+EXPOSE 8000
+
+ENTRYPOINT ["/app/student-api"]

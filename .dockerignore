@@ -1,0 +1,15 @@
+.venv
+.git
+.gitignore
+__pycache__
+*.pyc
+.env
+.env.docker
+.env.example
+tests
+.pytest_cache
+README.md
+Dockerfile.binary
+dist
+*.spec
+source-backup
