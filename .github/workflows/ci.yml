@@ -1,7 +1,7 @@
-cat > .github/workflows/ci.yml <<'EOF'
+
 name: Student API CI
 
-'on':
+on:
   push:
     branches:
       - master
@@ -18,7 +18,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: "3.11"
 
       - name: Install Dependencies
         run: |
@@ -50,5 +50,3 @@ jobs:
       - name: Push Docker Image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest
 EOF
-
-
