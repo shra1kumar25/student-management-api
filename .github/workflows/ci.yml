@@ -12,93 +12,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ==========================================
-      # 1. Checkout
-      # ==========================================
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ==========================================
-      # 2. Setup Python
-      # ==========================================
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
 
-      # ==========================================
-      # 3. Install Dependencies
-      # ==========================================
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
-      # ==========================================
-      # 4. Run Tests
-      # ==========================================
       - name: Run Tests
         run: |
           pytest
 
-      # ==========================================
-      # 5. Coverage
-      # ==========================================
       - name: Generate Coverage
         run: |
           pytest --cov=app --cov-report=xml
 
-      # ==========================================
-      # 6. SonarQube
-      # ==========================================
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      # ==========================================
-      # 7. Docker Login
-      # ==========================================
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # ==========================================
-      # 8. Build Docker Image
-      # ==========================================
       - name: Build Docker Image
         run: |
           docker build \
             -t ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest \
             .
 
-      # ==========================================
-      # 9. Trivy Security Scan
-      # ==========================================
-      - name: Trivy Security Scan
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          image-ref: ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest
-          format: table
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: "0"
-
-      # ==========================================
-      # 10. Push Docker Image
-      # ==========================================
       - name: Push Docker Image
         run: |
           docker push \
             ${{ secrets.DOCKER_USERNAME }}/student-management-api:latest
-EOF
-
-      - name: Generate Coverage
-        run: |
-          pytest --cov=app --cov-report=xml
 EOF
